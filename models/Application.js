@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 const ApplicationSchema = new mongoose.Schema({
-    title: String,
-    number: Number,
-    responsible: String,
-    status: String,
-    date: String,
+    title: { type: String, required: true },
+    number: { type: Number, unique: true },
+    responsible: { type: String, required: true },
+    status: { type: String, required: true },
+    date: { type: String, required: true },
     invoices: {
         company: String,
         number: String,
@@ -30,6 +30,12 @@ const ApplicationSchema = new mongoose.Schema({
             warehouse: String,
             amount: Number
         }]
+    }
+});
+ApplicationSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        // Автоматически удаляем связанные файлы при удалении заявки
+        await mongoose.model('PdfFile').deleteMany({ applicationId: doc._id });
     }
 });
 
